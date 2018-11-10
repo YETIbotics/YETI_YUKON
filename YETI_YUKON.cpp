@@ -13,17 +13,15 @@ void YETI_YUKON::Setup()
     PWM.begin();
     PWM.setPWMFreq(500);
 
-    GPIO.begin();      // use default address 0
+    GPIO.begin(); // use default address 0
 
     ADC.begin(2);
 
-    AsyncWiFiManager wifiManager(&server, &dns);
-    //wifiManager.resetSettings();
-    wifiManager.autoConnect();
+    
 
     //Initialize the Display
     OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    OLED.clearDisplay(); 
+    OLED.clearDisplay();
     OLED.setCursor(0, 0);
 
     OLED.setTextSize(1);
@@ -32,19 +30,33 @@ void YETI_YUKON::Setup()
     pinMode(25, OUTPUT);
     digitalWrite(25, LOW);
 
+    
+    //delay(1000); //make sure the IP address stays on the screen for 1 second.
+    //Should be replaced later with something else.
+
+    //SetupWIFI();
+}
+
+void YETI_YUKON:: SetupWIFI()
+{
+    AsyncWiFiManager wifiManager(&server, &dns);
+    //wifiManager.resetSettings();
+    wifiManager.autoConnect();
+    SetupOTA();
+
+    OLED.clearDisplay();
+    OLED.setCursor(0, 0);
     OLED.println(WiFi.localIP());
     OLED.println(robotName);
     OLED.display();
-    delay(1000); //make sure the IP address stays on the screen for 1 second.
-    //Should be replaced later with something else.
 
-    SetupOTA();
+    delay(1000);
 }
 
 void YETI_YUKON::Loop()
 {
     GYRO.Loop();
-    // OLED.clearDisplay(); 
+    // OLED.clearDisplay();
     // OLED.setCursor(0, 0);
     // OLED.println(GYRO.Heading());
     // OLED.display();
@@ -118,4 +130,36 @@ void YETI_YUKON::SetupOTA()
         });
 
     ArduinoOTA.begin();
+}
+
+int16_t YETI_YUKON::ScrubInputWithParameters(int16_t JoystickValue, int16_t Deadzone, int16_t InputMin, int16_t InputMax, bool reverseInput)
+{
+    int16_t _inZero = abs(InputMax + InputMin) / 2;
+
+	if (JoystickValue > _inZero+Deadzone)
+	{
+		JoystickValue = map(JoystickValue, _inZero+Deadzone, InputMax, 0, 255);
+	}
+	else if (JoystickValue < _inZero-Deadzone)
+	{
+		JoystickValue = map(JoystickValue, _inZero-Deadzone, InputMin, 0, -255);
+	}
+	else
+	{
+		JoystickValue = 0;
+	}
+	if(reverseInput)
+		return JoystickValue * -1;
+
+	return JoystickValue;
+}
+
+//Value Mappers
+int16_t YETI_YUKON::PS4JoystickTo255(int16_t JoystickValue, int16_t Deadzone)
+{
+    return ScrubInputWithParameters(JoystickValue, Deadzone, 0, 255, true);
+}
+int16_t YETI_YUKON::XBOXJoystickTo255(int16_t JoystickValue, int16_t Deadzone)
+{
+    return ScrubInputWithParameters(JoystickValue, Deadzone, -32767, 32767, false);
 }

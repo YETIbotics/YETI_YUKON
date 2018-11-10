@@ -19,10 +19,7 @@ public:
 
 	void SetMotorSpeed(float speed);
 
-	void SetInputParameters(float InputMin, float InputMax, float InputDeadZone);
-
 private:
-	float ScrubInputWithParameters(float speed);
 
 	Adafruit_PWMServoDriver *pwm;
 	Adafruit_MCP23017 *gpio;
@@ -38,9 +35,6 @@ private:
 	int _channel;
 
 	float _prevSpeed = 1;
-	float _inputDeadZone = 0;
-	float _inputMin = -255;
-	float _inputMax = 255;
 };
 
 

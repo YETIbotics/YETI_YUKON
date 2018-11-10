@@ -32,35 +32,8 @@ void YUKON_RC_ESC::Init()
 	}
 }
 
-void YUKON_RC_ESC::SetInputParameters(float InputMin, float InputMax, float InputDeadZone)
-{
-	_inputMin = InputMin;
-	_inputMax = InputMax;
-	_inputDeadZone = InputDeadZone;
-}
-
-float YUKON_RC_ESC::ScrubInputWithParameters(float speed)
-{
-	if (speed > _inputDeadZone)
-	{
-		//Going backwards
-		speed = map(speed, _inputDeadZone, _inputMax, 0, 255);
-	}
-	else if (speed < -_inputDeadZone)
-	{
-		//going forwards
-		speed = map(speed, -_inputDeadZone, _inputMin, 0, -255);
-	}
-	else
-	{
-		speed = 0;
-	}
-	return speed;
-}
-
 void YUKON_RC_ESC::SetMotorSpeed(float speed)
 {
-	speed = ScrubInputWithParameters(speed);
 
 	if (_reverse)
 		speed = speed * -1;
