@@ -26,6 +26,7 @@ void YETI_YUKON::Setup()
 
     OLED.setTextSize(1);
     OLED.setTextColor(WHITE);
+    OLED.display();
 
     pinMode(25, OUTPUT);
     digitalWrite(25, LOW);
