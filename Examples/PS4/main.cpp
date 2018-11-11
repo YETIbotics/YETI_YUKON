@@ -30,7 +30,7 @@ void setup()
 
 void loop()
 {
-    Yukon.Loop(); 
+    Yukon.Loop();
     Robot.Loop();
 
     delay(1);
@@ -42,30 +42,29 @@ void DriveTask(void *pvParameters)
     Serial.print("DriveTask: Executing on core ");
     Serial.println(xPortGetCoreID());
 
-        while (true)
-        {
-            Robot.Drive.Loop();
-        }
+    while (true)
+    {
+        Robot.Drive.Loop();
     }
-    
+}
+
 void LiftTask(void *pvParameters)
 {
     Serial.print("LiftTask: Executing on core ");
     Serial.println(xPortGetCoreID());
 
-        while (true)
-        {
-            Robot.Lift.Loop();
-        }
+    while (true)
+    {
+        Robot.Lift.Loop();
     }
-    
+}
 
 void AutonTask(void *pvParameters)
 {
     Serial.print("AutonTask: Executing on core ");
     Serial.println(xPortGetCoreID());
 
-    while(true)
+    while (true)
     {
         Robot.Auton.Loop();
     }

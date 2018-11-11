@@ -1,27 +1,22 @@
 #pragma once
 
 #include <Arduino.h>
+#include <YUKON_AUTON.h>
 
-    class ROBOT;
+class ROBOT;
 
-    class AUTONOMOUS
-    {
+class AUTONOMOUS : public YUKON_AUTON
+{
 
-    public:
+public:
+  AUTONOMOUS(ROBOT &refRobot);
+  void Loop();
 
-    AUTONOMOUS(ROBOT &refRobot);
-    void StartAuton(String AutonName);
-    void Loop();
+private:
+  ROBOT &Robot;
 
-
-    private:
-    ROBOT &Robot;
-    String _RunningAuton = "";
-    void ExecAuton1();
-    void ExecAuton2();
-    void ExecAuton3();
-    void ExecAuton4();
-
-    };
-
-
+  void ExecAuton1();
+  void ExecAuton2();
+  void ExecAuton3();
+  void ExecAuton4();
+};

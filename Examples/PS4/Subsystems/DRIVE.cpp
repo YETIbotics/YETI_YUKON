@@ -27,15 +27,15 @@ void DRIVE::Loop()
     delay(20);
 }
 
-void DRIVE::OISetSpeed(int16_t DriveRightSpeed,int16_t DriveLeftSpeed)
+void DRIVE::OISetSpeed(int16_t DriveRightSpeed, int16_t DriveLeftSpeed)
 {
     _OIDriveRightSpeed = DriveRightSpeed;
     _OIDriveLeftSpeed = DriveLeftSpeed;
 }
 
-bool DRIVE::ForAsync(long durationMS, int16_t DriveRightSpeed,int16_t DriveLeftSpeed, uint8_t HoldUntilPercent)
+bool DRIVE::ForAsync(long durationMS, int16_t DriveRightSpeed, int16_t DriveLeftSpeed, uint8_t HoldUntilPercent)
 {
-    bool retVal = ForAsync(durationMS, DriveRightSpeed,DriveLeftSpeed);
+    bool retVal = ForAsync(durationMS, DriveRightSpeed, DriveLeftSpeed);
     while (CmdPercentComplete() < HoldUntilPercent && retVal)
     {
         delay(20);
@@ -44,11 +44,10 @@ bool DRIVE::ForAsync(long durationMS, int16_t DriveRightSpeed,int16_t DriveLeftS
     return retVal;
 }
 
-bool DRIVE::ForAsync(long durationMS, int16_t DriveRightSpeed,int16_t DriveLeftSpeed)
+bool DRIVE::ForAsync(long durationMS, int16_t DriveRightSpeed, int16_t DriveLeftSpeed)
 {
     _CmdDriveRightSpeed = DriveRightSpeed;
     _CmdDriveLeftSpeed = DriveLeftSpeed;
-    
 
     bool retVal = CmdStart("ForAsync", millis(), millis() + durationMS, durationMS + 500);
 

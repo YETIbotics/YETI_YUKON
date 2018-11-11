@@ -3,24 +3,32 @@
 
 AUTONOMOUS::AUTONOMOUS(ROBOT &refRobot) : Robot(refRobot)
 {
+    _MaxProgramNumber = 4;
 }
 
 void AUTONOMOUS::Loop()
 {
+    if (_AutonARMED)
+    {
+        if (Robot.State.AutonLightSensorActive)
+        {
+            LaunchQueued();
+        }
+    }
 
-    if (_RunningAuton == "Auton1") ExecAuton1();
-    else if(_RunningAuton == "Auton2") ExecAuton2();
-    else if(_RunningAuton == "Auton3") ExecAuton3();
-    else if(_RunningAuton == "Auton4") ExecAuton4();
+    if (_RunningAuton == "Auton1")
+        ExecAuton1();
+    else if (_RunningAuton == "Auton2")
+        ExecAuton2();
+    else if (_RunningAuton == "Auton3")
+        ExecAuton3();
+    else if (_RunningAuton == "Auton4")
+        ExecAuton4();
 
-     _RunningAuton = "";
+    _RunningAuton = "";
     delay(20);
 }
 
-void AUTONOMOUS::StartAuton(String AutonName)
-{
-    _RunningAuton = AutonName;
-}
 
 void AUTONOMOUS::ExecAuton1()
 {
