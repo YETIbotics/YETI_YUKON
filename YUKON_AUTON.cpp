@@ -2,6 +2,23 @@
 
 YUKON_AUTON::YUKON_AUTON()
 {
+
+}
+
+void YUKON_AUTON::Setup()
+{
+     preferences.begin("auton", false);
+    unsigned int aNum = preferences.getUInt("lockednum", 0);
+    preferences.putUInt("lockednum", 0);
+    preferences.end();
+
+    if(aNum > 0)
+    {
+        _QueuedProgramNumber = aNum;
+        _QueuedAuton = "Auton" + String(_QueuedProgramNumber);
+
+        LaunchQueued();
+    }
 }
 
 void YUKON_AUTON::StartAuton(String AutonName)
@@ -21,6 +38,10 @@ void YUKON_AUTON::LaunchQueued()
 bool YUKON_AUTON::IsArmed()
 {
     return _AutonARMED;
+}
+bool YUKON_AUTON::IsArmLocked()
+{
+    return _AutonARMLOCKED;
 }
 String YUKON_AUTON::QueuedProgramName()
 {
@@ -59,4 +80,24 @@ void YUKON_AUTON::QueuePrev()
 void YUKON_AUTON::ToggleArmed()
 {
     _AutonARMED = !_AutonARMED;
+}
+
+void YUKON_AUTON::ToggleLockArmed()
+{
+    _AutonARMLOCKED = !_AutonARMLOCKED;
+
+    preferences.begin("auton", false);
+
+    if(_AutonARMLOCKED)
+        preferences.putUInt("lockednum", _QueuedProgramNumber);
+    else
+        preferences.putUInt("lockednum", 0);
+
+    preferences.end();
+
+    //unsigned int counter = preferences.getUInt("lockednum", 0);   
+   // counter++;
+    //preferences.putUInt("lockednum", counter);
+
+    //ESP.restart();
 }
