@@ -31,6 +31,8 @@ void YETI_YUKON::Setup()
     pinMode(25, OUTPUT);
     digitalWrite(25, LOW);
 
+    _lastWatchdogPat = millis();
+
     
     //delay(1000); //make sure the IP address stays on the screen for 1 second.
     //Should be replaced later with something else.
@@ -64,7 +66,16 @@ void YETI_YUKON::Loop()
 
     ArduinoOTA.handle();
 
+    
+    _lastWatchdogPat = millis();
+
     //delay(1);
+}
+
+void YETI_YUKON::WatchdogLoop()
+{
+    if(millis() - _lastWatchdogPat > _watchdogBite)
+        ESP.restart();
 }
 
 int PrevPercent = 0;

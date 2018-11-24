@@ -36,6 +36,7 @@ public:
 
   void Setup();
   void Loop();
+  void WatchdogLoop();
   void SetupWIFI();
 
   //Value Mappers
@@ -47,6 +48,9 @@ private:
   void SetupOTA();
   const char *robotName = "";
   const char *password = "";
+
+  long _lastWatchdogPat = 0;
+  long _watchdogBite = 500;
 };
 
 #endif /* _YETI_YUKON_H_ */
