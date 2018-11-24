@@ -17,8 +17,6 @@ void YETI_YUKON::Setup()
 
     ADC.begin(2);
 
-    
-
     //Initialize the Display
     OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C);
     OLED.clearDisplay();
@@ -33,17 +31,19 @@ void YETI_YUKON::Setup()
 
     _lastWatchdogPat = millis();
 
-    
     //delay(1000); //make sure the IP address stays on the screen for 1 second.
     //Should be replaced later with something else.
 
     //SetupWIFI();
 }
 
-void YETI_YUKON:: SetupWIFI()
+void YETI_YUKON::SetupWIFI()
 {
+    _watchdogPaused = true;
+    _lastWatchdogPat = millis();
+
     AsyncWiFiManager wifiManager(&server, &dns);
-    //wifiManager.resetSettings();
+    wifiManager.resetSettings();
     wifiManager.autoConnect();
     SetupOTA();
 
@@ -54,6 +54,9 @@ void YETI_YUKON:: SetupWIFI()
     OLED.display();
 
     delay(1000);
+
+    _lastWatchdogPat = millis();
+    _watchdogPaused = false;
 }
 
 void YETI_YUKON::Loop()
@@ -66,16 +69,31 @@ void YETI_YUKON::Loop()
 
     ArduinoOTA.handle();
 
-    
     _lastWatchdogPat = millis();
 
     //delay(1);
 }
 
+void YETI_YUKON::EnableWatchdog()
+{
+    _lastWatchdogPat = millis();
+    _watchdogEnabled = true;
+}
+void YETI_YUKON::DisableWatchdog()
+{
+    _watchdogEnabled = false;
+}
+
 void YETI_YUKON::WatchdogLoop()
 {
-    if(millis() - _lastWatchdogPat > _watchdogBite)
+    if (_watchdogEnabled && !_watchdogPaused && millis() - _lastWatchdogPat > _watchdogBite)
+    {
+        Serial.println("Watchdog Bite! Restarting.");
+        Serial.print(millis() - _lastWatchdogPat);
+        Serial.print(" > ");
+        Serial.println(_watchdogBite);
         ESP.restart();
+    }
 }
 
 int PrevPercent = 0;
@@ -148,22 +166,22 @@ int16_t YETI_YUKON::ScrubInputWithParameters(int16_t JoystickValue, int16_t Dead
 {
     int16_t _inZero = abs(InputMax + InputMin) / 2;
 
-	if (JoystickValue > _inZero+Deadzone)
-	{
-		JoystickValue = map(JoystickValue, _inZero+Deadzone, InputMax, 0, 255);
-	}
-	else if (JoystickValue < _inZero-Deadzone)
-	{
-		JoystickValue = map(JoystickValue, _inZero-Deadzone, InputMin, 0, -255);
-	}
-	else
-	{
-		JoystickValue = 0;
-	}
-	if(reverseInput)
-		return JoystickValue * -1;
+    if (JoystickValue > _inZero + Deadzone)
+    {
+        JoystickValue = map(JoystickValue, _inZero + Deadzone, InputMax, 0, 255);
+    }
+    else if (JoystickValue < _inZero - Deadzone)
+    {
+        JoystickValue = map(JoystickValue, _inZero - Deadzone, InputMin, 0, -255);
+    }
+    else
+    {
+        JoystickValue = 0;
+    }
+    if (reverseInput)
+        return JoystickValue * -1;
 
-	return JoystickValue;
+    return JoystickValue;
 }
 
 //Value Mappers

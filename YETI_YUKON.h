@@ -39,6 +39,9 @@ public:
   void WatchdogLoop();
   void SetupWIFI();
 
+  void EnableWatchdog();
+  void DisableWatchdog();
+
   //Value Mappers
   int16_t PS4JoystickTo255(int16_t JoystickValue, int16_t Deadzone);
   int16_t XBOXJoystickTo255(int16_t JoystickValue, int16_t Deadzone);
@@ -49,8 +52,10 @@ private:
   const char *robotName = "";
   const char *password = "";
 
-  long _lastWatchdogPat = 0;
-  long _watchdogBite = 500;
+  volatile long _lastWatchdogPat = 0;
+  volatile long _watchdogBite = 1000;
+  volatile bool _watchdogEnabled = false;
+  volatile bool _watchdogPaused = false;
 };
 
 #endif /* _YETI_YUKON_H_ */
