@@ -104,7 +104,9 @@ void YETI_YUKON::SetupOTA()
     ArduinoOTA.setHostname(robotName);
     ArduinoOTA.setPassword(password);
     ArduinoOTA
-        .onStart([]() {
+        .onStart([this]() {
+            DisableWatchdog();
+
             String type;
             if (ArduinoOTA.getCommand() == U_FLASH)
                 type = "sketch";
