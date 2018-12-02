@@ -18,6 +18,18 @@ YUKON_CytronMD10::YUKON_CytronMD10(int channel, int pinpwm, int pindir, bool rev
 	ledcAttachPin(_pinPWM, _channel);
 }
 
+YUKON_CytronMD10::YUKON_CytronMD10(int channel, Adafruit_PWMServoDriver *Refpwm, int pindir, bool reversed)
+{
+	pwm = Refpwm;
+	_isPWMBoard = true;
+
+	_pinDIR = pindir;
+	_reverse = reversed;
+	_channel = channel;
+	
+	pinMode(_pinDIR, OUTPUT);
+}
+
 YUKON_CytronMD10::YUKON_CytronMD10(int channel, Adafruit_PWMServoDriver *Refpwm, int pindir, Adafruit_MCP23017 *Refgpio, bool reversed)
 {
 	pwm = Refpwm;
