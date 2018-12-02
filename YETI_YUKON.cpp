@@ -43,7 +43,7 @@ void YETI_YUKON::SetupWIFI()
     _lastWatchdogPat = millis();
 
     AsyncWiFiManager wifiManager(&server, &dns);
-    wifiManager.resetSettings();
+    //wifiManager.resetSettings();
     wifiManager.autoConnect();
     SetupOTA();
 

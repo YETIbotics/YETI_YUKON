@@ -28,7 +28,7 @@ void YUKON_RC_ESC::Init()
 {
 	if (_isPWMBoard)
 	{
-		pwm->setPWM(_channel, 0, 2820); //342
+		pwm->setPWM(_channel, 0, 2820); //2820
 	}
 }
 
