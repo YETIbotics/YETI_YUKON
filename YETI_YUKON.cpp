@@ -187,7 +187,7 @@ int16_t YETI_YUKON::ScrubInputWithParameters(int16_t JoystickValue, int16_t Dead
 }
 
 //Value Mappers
-int16_t YETI_YUKON::PS4JoystickTo255(int16_t JoystickValue, int16_t Deadzone)
+int16_t YETI_YUKON::JoystickTo255(int16_t JoystickValue, int16_t Deadzone)
 {
     return ScrubInputWithParameters(JoystickValue, Deadzone, 0, 255, true);
 }

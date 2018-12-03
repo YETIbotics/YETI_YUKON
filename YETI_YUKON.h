@@ -43,7 +43,7 @@ public:
   void DisableWatchdog();
 
   //Value Mappers
-  int16_t PS4JoystickTo255(int16_t JoystickValue, int16_t Deadzone);
+  int16_t JoystickTo255(int16_t JoystickValue, int16_t Deadzone);
   int16_t XBOXJoystickTo255(int16_t JoystickValue, int16_t Deadzone);
   int16_t ScrubInputWithParameters(int16_t JoystickValue, int16_t Deadzone, int16_t InputMin, int16_t InputMax, bool reverseInput);
 
