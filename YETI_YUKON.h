@@ -6,6 +6,7 @@
 #include <ESPAsyncWebServer.h>
 #include <ESPAsyncWiFiManager.h>
 #include <ArduinoOTA.h>
+#include <Preferences.h>
 
 //OLED Display Libraries
 #include <Adafruit_GFX.h>
@@ -29,15 +30,18 @@ public:
   Adafruit_MCP23017 GPIO;
   Adafruit_MCP3008 ADC;
 
-  AsyncWebServer server;
+  AsyncWebServer Server;
   DNSServer dns;
 
   YUKON_MPU6050 GYRO;
+
+	Preferences preferences;
 
   void Setup();
   void Loop();
   void WatchdogLoop();
   void SetupWIFI();
+  void ToggleWIFI();
 
   void EnableWatchdog();
   void DisableWatchdog();

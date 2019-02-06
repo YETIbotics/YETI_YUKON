@@ -1,6 +1,6 @@
 #include "YETI_YUKON.h"
 
-YETI_YUKON::YETI_YUKON(const char *RobotName, const char *Password) : OLED(16), server(80)
+YETI_YUKON::YETI_YUKON(const char *RobotName, const char *Password) : OLED(16), Server(80)
 {
     robotName = RobotName;
     password = Password;
@@ -31,18 +31,35 @@ void YETI_YUKON::Setup()
 
     _lastWatchdogPat = millis();
 
-    //delay(1000); //make sure the IP address stays on the screen for 1 second.
-    //Should be replaced later with something else.
+    // preferences.begin("yukon", true);
+    // bool setupWifi = preferences.getBool("setupwifi", false);
+    // preferences.end();
 
-    //SetupWIFI();
+    // if(setupWifi)
+    //     SetupWIFI();
+}
+
+void YETI_YUKON::ToggleWIFI()
+{
+    preferences.begin("yukon", false);
+    bool setupWifi = preferences.getBool("setupwifi", false);
+    preferences.putBool("setupwifi", !setupWifi);
+    preferences.end();
+    
+    if(setupWifi)
+        ESP.restart();
+    else
+        SetupWIFI();
 }
 
 void YETI_YUKON::SetupWIFI()
 {
+    digitalWrite(25, HIGH);
+
     _watchdogPaused = true;
     _lastWatchdogPat = millis();
 
-    AsyncWiFiManager wifiManager(&server, &dns);
+    AsyncWiFiManager wifiManager(&Server, &dns);
     //wifiManager.resetSettings();
     wifiManager.autoConnect();
     SetupOTA();
@@ -54,6 +71,14 @@ void YETI_YUKON::SetupWIFI()
     OLED.display();
 
     delay(1000);
+
+    Server.on("/auton", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", "<html><body><form method=\"post\" action=\"/post\">  Auton:<br><textarea name=\"message\" value=\"Mickey\" rows=\"20\"></textarea><br><br><input type=\"submit\" value=\"Submit\"></form></body></html>");
+    });
+
+    
+
+    Server.begin();
 
     _lastWatchdogPat = millis();
     _watchdogPaused = false;

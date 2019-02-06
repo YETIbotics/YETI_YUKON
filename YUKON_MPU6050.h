@@ -16,6 +16,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#include <Preferences.h>
+
 class YUKON_MPU6050
 {
 
@@ -30,14 +32,16 @@ public:
   void Loop();
   float Heading();
 
-  static const int GyroInt = 39; 
+  void RunCalibration();
+
+  static const int GyroInt = 39;
   volatile bool MpuInterrupt = false;
 
 private:
-
   void UpdateHeading(float newHeading);
   float _gyroDegrees;
   int _gyroRotations = 0;
+  bool _isInitialized = false;
 
   // MPU control/status vars
   bool dmpReady = false;  // set true if DMP init was successful
@@ -55,6 +59,23 @@ private:
   VectorFloat gravity; // [x, y, z]            gravity vector
   float euler[3];      // [psi, theta, phi]    Euler angle container
   float ypr[3];        // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
+  //CALIBRATION ITEMS
+
+  ///////////////////////////////////   CONFIGURATION   /////////////////////////////
+  //Change this 3 variables if you want to fine tune the skecth to your needs.
+  int buffersize = 1000; //Amount of readings used to average, make it higher to get more precision but sketch will be slower  (default:1000)
+  int acel_deadzone = 8; //Acelerometer error allowed, make it lower to get more precision, but sketch may not converge  (default:8)
+  int giro_deadzone = 1; //Giro error allowed, make it lower to get more precision, but sketch may not converge  (default:1)
+
+
+  int mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz, state = 0;
+  int ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset;
+
+  void calibration();
+  void meansensors();
+  
+	Preferences preferences;
 };
 
 #endif /* _YUKON_MPU6050_H_ */

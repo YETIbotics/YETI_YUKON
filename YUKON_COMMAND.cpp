@@ -20,6 +20,11 @@ uint8_t YUKON_COMMAND::CmdPercentComplete()
 {
     return _CmdPercentComplete;
 }
+
+float YUKON_COMMAND::CmdClicksRemaining()
+{
+    return _CmdSetPoint - _CurrentPoint;
+}
 bool YUKON_COMMAND::CmdStart(String CmdName, long Timeout)
 { 
     if (_CmdIsRunning)
@@ -70,8 +75,8 @@ bool YUKON_COMMAND::CmdUpdatePercent(int16_t CurrentPoint)
         return false;
      }
 
-
-     _CmdPercentComplete = ((CurrentPoint - _CmdStartPoint)*100) / (_CmdSetPoint - _CmdStartPoint);
+     _CurrentPoint = CurrentPoint;
+     _CmdPercentComplete = (abs((CurrentPoint - _CmdStartPoint))*100) / abs(_CmdSetPoint - _CmdStartPoint);
      Serial.print("_CmdPercentComplete:");
      Serial.print(_CmdPercentComplete);
      Serial.print(" Var1:");

@@ -10,6 +10,7 @@ class YUKON_COMMAND
 
 	bool CmdIsRunning();
 	uint8_t CmdPercentComplete();
+	float CmdClicksRemaining();
 	int16_t CmdSetPoint();
 
 	bool CmdStart(String CmdName, long Timeout);
@@ -27,6 +28,7 @@ class YUKON_COMMAND
 
 	int16_t _CmdStartPoint = 0;
 	int16_t _CmdSetPoint = 0;
+	int16_t _CurrentPoint = 0;
 
 	String _CmdName = "";
 };
