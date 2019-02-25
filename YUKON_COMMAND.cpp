@@ -26,7 +26,7 @@ float YUKON_COMMAND::CmdClicksRemaining()
     return _CmdSetPoint - _CurrentPoint;
 }
 bool YUKON_COMMAND::CmdStart(String CmdName, long Timeout)
-{ 
+{
     if (_CmdIsRunning)
         return false;
 
@@ -40,7 +40,7 @@ bool YUKON_COMMAND::CmdStart(String CmdName, long Timeout)
 }
 
 bool YUKON_COMMAND::CmdStart(String CmdName, int16_t StartPoint, int16_t SetPoint, long Timeout)
-{ 
+{
     if (_CmdIsRunning)
         return false;
 
@@ -68,30 +68,55 @@ bool YUKON_COMMAND::CmdTimedOut()
 
 bool YUKON_COMMAND::CmdUpdatePercent(int16_t CurrentPoint)
 {
-     if(millis() > _CmdTimeout)
-     {
+    if (millis() > _CmdTimeout)
+    {
         _CmdTimedOut = true;
         CmdDone();
         return false;
-     }
+    }
 
-     _CurrentPoint = CurrentPoint;
-     _CmdPercentComplete = (abs((CurrentPoint - _CmdStartPoint))*100) / abs(_CmdSetPoint - _CmdStartPoint);
-     Serial.print("_CmdPercentComplete:");
-     Serial.print(_CmdPercentComplete);
-     Serial.print(" Var1:");
-     Serial.print(((CurrentPoint - _CmdStartPoint)*100));
-     Serial.print(" Var2:");
-     Serial.println((_CmdSetPoint - _CmdStartPoint));
-    //  Serial.print(" _CmdSetPoint:");
-    //  Serial.println(_CmdSetPoint);
+    _CurrentPoint = CurrentPoint;
+    _CmdPercentComplete = (abs((CurrentPoint - _CmdStartPoint)) * 100) / abs(_CmdSetPoint - _CmdStartPoint);
 
-     if(_CmdPercentComplete >= 100)
-     {
+    if (_CmdPercentComplete >= 100)
+    {
         _CmdPercentComplete = 100;
         CmdDone();
         return false;
-     }
+    }
 
-     return true;
+    return true;
+}
+
+int16_t YUKON_COMMAND::CalcControlLoop(int16_t inputSpeed)
+{
+    if (_SlowDown != 0)
+    {
+        if (abs(CmdClicksRemaining()) <= _SlowDown)
+        {
+            //What percent through the slowdown are we?
+            float slowDownPercent = 1.0 * abs(CmdClicksRemaining()) / _SlowDown;
+
+            //Cal
+            float desiredMotorSpeed = (slowDownPercent * (255 - 25)) + 25;
+
+            //make sure we don't go negative.
+            if(desiredMotorSpeed < 0)
+                desiredMotorSpeed = 0;
+
+            //Generate a +1 or -1 based on direction of input speed
+            int16_t direction = (inputSpeed != 0 ? (inputSpeed / abs(inputSpeed)) : 1);
+
+            int16_t tmpDriveSpeed = (desiredMotorSpeed * direction);
+
+            if (abs(tmpDriveSpeed) > abs(inputSpeed))
+                tmpDriveSpeed = inputSpeed;
+
+            return tmpDriveSpeed;
+        }
+    }
+
+
+    return inputSpeed;
+
 }

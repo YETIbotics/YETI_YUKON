@@ -1,6 +1,6 @@
 #include "YETI_YUKON.h"
 
-YETI_YUKON::YETI_YUKON(const char *RobotName, const char *Password) : OLED(16), Server(80)
+YETI_YUKON::YETI_YUKON(const char *RobotName, const char *Password) : OLED(0x3C, 4, 15, GEOMETRY_128_64)
 {
     robotName = RobotName;
     password = Password;
@@ -11,19 +11,23 @@ void YETI_YUKON::Setup()
     GYRO.Setup();
 
     PWM.begin();
-    PWM.setPWMFreq(500);
+    PWM.setPWMFreq(250);
 
     GPIO.begin(); // use default address 0
 
     ADC.begin(2);
+    
+    //Turn on the OLED
+    pinMode(16, OUTPUT);
+    digitalWrite(16, LOW);   // turn D2 low to reset OLED
+    delay(50);
+    digitalWrite(16, HIGH);    // while OLED is running, must set D2 in high
 
     //Initialize the Display
-    OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    OLED.clearDisplay();
-    OLED.setCursor(0, 0);
+    OLED.init();
+    OLED.flipScreenVertically();
 
-    OLED.setTextSize(1);
-    OLED.setTextColor(WHITE);
+    OLED.drawXbm(0, 0, 128, 64, yeti_logo);
     OLED.display();
 
     pinMode(25, OUTPUT);
@@ -31,25 +35,37 @@ void YETI_YUKON::Setup()
 
     _lastWatchdogPat = millis();
 
-    // preferences.begin("yukon", true);
-    // bool setupWifi = preferences.getBool("setupwifi", false);
-    // preferences.end();
+    preferences.begin("yukon", true);
+    WifiEnabled = preferences.getBool("setupwifi", false);
+    preferences.end();
 
-    // if(setupWifi)
-    //     SetupWIFI();
+    if (WifiEnabled)
+        SetupWIFI();
+}
+
+void YETI_YUKON::Disable()
+{
+    _Disabled = true;
+}
+
+bool YETI_YUKON::IsDisabled()
+{
+    return _Disabled;
 }
 
 void YETI_YUKON::ToggleWIFI()
 {
     preferences.begin("yukon", false);
-    bool setupWifi = preferences.getBool("setupwifi", false);
-    preferences.putBool("setupwifi", !setupWifi);
+    WifiEnabled = preferences.getBool("setupwifi", false);
+    WifiEnabled = !WifiEnabled;
+    preferences.putBool("setupwifi", WifiEnabled);
     preferences.end();
-    
-    if(setupWifi)
-        ESP.restart();
-    else
-        SetupWIFI();
+
+    ESP.restart();
+    // if (!WifiEnabled)
+    //    ESP.restart();
+    // else
+    //     SetupWIFI();
 }
 
 void YETI_YUKON::SetupWIFI()
@@ -59,46 +75,48 @@ void YETI_YUKON::SetupWIFI()
     _watchdogPaused = true;
     _lastWatchdogPat = millis();
 
-    AsyncWiFiManager wifiManager(&Server, &dns);
-    //wifiManager.resetSettings();
-    wifiManager.autoConnect();
-    SetupOTA();
+    //WiFi.begin("FreePublicWIFI");
+    //delay(2000);
+    //if (WiFi.status() == WL_CONNECTED)
+    if (wifiMulti.run() == WL_CONNECTED)
+    {
+        OLED.clear();
+        OLED.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+        OLED.setFont(ArialMT_Plain_16);
+        OLED.drawString(OLED.getWidth()/2, OLED.getHeight()/2, "Ready for OTA:\n" + WiFi.localIP().toString());
+        OLED.display();
 
-    OLED.clearDisplay();
-    OLED.setCursor(0, 0);
-    OLED.println(WiFi.localIP());
-    OLED.println(robotName);
-    OLED.display();
+        OLED.setTextAlignment(TEXT_ALIGN_LEFT);
 
-    delay(1000);
-
-    Server.on("/auton", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(200, "text/html", "<html><body><form method=\"post\" action=\"/post\">  Auton:<br><textarea name=\"message\" value=\"Mickey\" rows=\"20\"></textarea><br><br><input type=\"submit\" value=\"Submit\"></form></body></html>");
-    });
-
-    
-
-    Server.begin();
+        delay(1000);
+        SetupOTA();
+    }
+    else
+    {
+        //if connection failed, change preferences to not reconnect on next reboot.
+        ToggleWIFI();
+        digitalWrite(25, LOW);
+    }
 
     _lastWatchdogPat = millis();
     _watchdogPaused = false;
 }
 
-void YETI_YUKON::Loop()
+void YETI_YUKON::GeneralTask()
 {
-    GYRO.Loop();
-    // OLED.clearDisplay();
-    // OLED.setCursor(0, 0);
-    // OLED.println(GYRO.Heading());
-    // OLED.display();
+    
 
     ArduinoOTA.handle();
 
-    _lastWatchdogPat = millis();
+   
 
     //delay(1);
 }
 
+void YETI_YUKON::PatTheDog()
+{
+     _lastWatchdogPat = millis();
+}
 void YETI_YUKON::EnableWatchdog()
 {
     _lastWatchdogPat = millis();
@@ -121,9 +139,7 @@ void YETI_YUKON::WatchdogLoop()
     }
 }
 
-int PrevPercent = 0;
-unsigned long PrevMillis = 0;
-unsigned long LastUpdate = 0;
+unsigned long StartTime = 0;
 void YETI_YUKON::SetupOTA()
 {
     ArduinoOTA.setHostname(robotName);
@@ -138,39 +154,38 @@ void YETI_YUKON::SetupOTA()
             else // U_SPIFFS
                 type = "filesystem";
 
-            PrevMillis = millis();
-            LastUpdate = millis();
+            StartTime = millis();
+
+            OLED.clear();
+            OLED.setFont(ArialMT_Plain_10);
+            OLED.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+            OLED.drawString(OLED.getWidth()/2, OLED.getHeight()/2 - 10, "OTA Update");
+            OLED.display();
 
             // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
             //KillAllTasks();
         })
         .onEnd([]() {
-            Serial.println("\nEnd");
+            // OLED.clear();
+            // OLED.setFont(ArialMT_Plain_10);
+            // OLED.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+            // OLED.drawString(OLED.getWidth()/2, OLED.getHeight()/2, "Restart");
+            // OLED.display();
         })
         .onProgress([this](unsigned int progress, unsigned int total) {
-            if (millis() - LastUpdate > 1000)
-            {
-                LastUpdate = millis();
-                if (PrevPercent < (progress / (total / 100)))
-                {
-                    PrevPercent = (progress / (total / 100));
-                    //disp.WritePercentLarge(PrevPercent, 0, 0);
-                    OLED.clearDisplay();
-                    OLED.setTextSize(2);
-                    OLED.setCursor(0, 0);
-                    OLED.print(PrevPercent);
-                    OLED.print("%    ");
-                    OLED.print((millis() - PrevMillis) / 1000);
-                    OLED.println("s");
+            OLED.clear();
 
-                    for (int i = 0; i < PrevPercent; i += 11)
-                    {
-                        OLED.print("=");
-                    }
+            OLED.drawProgressBar(4, 44, 120, 12, progress / (total / 100) );
 
-                    OLED.display();
-                }
-            }
+            OLED.setTextAlignment(TEXT_ALIGN_RIGHT);
+            OLED.setFont(ArialMT_Plain_24);
+            OLED.drawString(124, 8, String((millis() - StartTime) / 1000) + "s");
+
+            OLED.setTextAlignment(TEXT_ALIGN_LEFT);
+            OLED.setFont(ArialMT_Plain_24);
+            OLED.drawString(4, 8, String(progress * 100 / total) + "%");
+
+            OLED.display();
         })
         .onError([](ota_error_t error) {
             Serial.printf("Error[%u]: ", error);

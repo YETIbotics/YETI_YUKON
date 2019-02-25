@@ -30,6 +30,7 @@ public:
 
   void Setup();
   void Loop();
+  void Reset();
   float Heading();
 
   void RunCalibration();
@@ -39,8 +40,9 @@ public:
 
 private:
   void UpdateHeading(float newHeading);
-  float _gyroDegrees;
-  int _gyroRotations = 0;
+  volatile float _gyroDegrees;
+  volatile float _gyroOffset = 0;
+  volatile int _gyroRotations = 0;
   bool _isInitialized = false;
 
   // MPU control/status vars

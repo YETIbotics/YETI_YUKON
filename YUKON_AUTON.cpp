@@ -39,6 +39,10 @@ bool YUKON_AUTON::IsArmed()
 {
     return _AutonARMED;
 }
+bool YUKON_AUTON::IsRunning()
+{
+    return _RunningAuton != "";
+}
 bool YUKON_AUTON::IsArmLocked()
 {
     return _AutonARMLOCKED;

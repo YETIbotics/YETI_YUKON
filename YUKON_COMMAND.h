@@ -20,6 +20,10 @@ class YUKON_COMMAND
 	bool CmdUpdatePercent(int16_t CurrentPoint);
 	String CmdName();
 
+	int16_t CalcControlLoop(int16_t inputSpeed);
+	
+	float _SlowDown = 0;
+
   private:
 	bool _CmdIsRunning = false;
 	bool _CmdTimedOut = false;
@@ -29,6 +33,7 @@ class YUKON_COMMAND
 	int16_t _CmdStartPoint = 0;
 	int16_t _CmdSetPoint = 0;
 	int16_t _CurrentPoint = 0;
+
 
 	String _CmdName = "";
 };

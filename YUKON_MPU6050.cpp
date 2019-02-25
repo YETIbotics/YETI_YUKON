@@ -110,7 +110,7 @@ void YUKON_MPU6050::Loop()
         //Serial.println(ypr[2] * 180 / M_PI);
     }
 
-    UpdateHeading(ypr[0] * -180 / M_PI);
+    UpdateHeading(ypr[0] * 180 / M_PI);
 
     // display.clearDisplay();
     // display.setTextSize(1);
@@ -137,6 +137,12 @@ void YUKON_MPU6050::Loop()
     // delay(1);
 }
 
+void YUKON_MPU6050::Reset()
+{
+     _gyroOffset = -_gyroDegrees;
+    _gyroRotations = 0;
+}
+
 void YUKON_MPU6050::UpdateHeading(float newHeading)
 {
     float prev = _gyroDegrees;
@@ -158,7 +164,7 @@ void YUKON_MPU6050::UpdateHeading(float newHeading)
 
 float YUKON_MPU6050::Heading()
 {
-    return _gyroDegrees + (360 * _gyroRotations);
+    return (_gyroDegrees + _gyroOffset) + (360 * _gyroRotations);
 }
 
 void YUKON_MPU6050::RunCalibration()

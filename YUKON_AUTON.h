@@ -19,6 +19,7 @@ public:
 	void ToggleLockArmed();
 	bool IsArmed();
 	bool IsArmLocked();
+	bool IsRunning();
 	String QueuedProgramName();
 
 	Preferences preferences;
