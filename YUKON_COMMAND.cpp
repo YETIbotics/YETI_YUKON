@@ -98,7 +98,7 @@ int16_t YUKON_COMMAND::CalcControlLoop(int16_t inputSpeed)
             float slowDownPercent = 1.0 * abs(CmdClicksRemaining()) / _SlowDown;
 
             //Cal
-            float desiredMotorSpeed = (slowDownPercent * (255 - 25)) + 25;
+            float desiredMotorSpeed = (slowDownPercent * (255 - 45)) + 45;
 
             //make sure we don't go negative.
             if(desiredMotorSpeed < 0)

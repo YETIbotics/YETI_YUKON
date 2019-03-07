@@ -16,12 +16,12 @@ void YETI_YUKON::Setup()
     GPIO.begin(); // use default address 0
 
     ADC.begin(2);
-    
+
     //Turn on the OLED
     pinMode(16, OUTPUT);
-    digitalWrite(16, LOW);   // turn D2 low to reset OLED
+    digitalWrite(16, LOW); // turn D2 low to reset OLED
     delay(50);
-    digitalWrite(16, HIGH);    // while OLED is running, must set D2 in high
+    digitalWrite(16, HIGH); // while OLED is running, must set D2 in high
 
     //Initialize the Display
     OLED.init();
@@ -41,6 +41,11 @@ void YETI_YUKON::Setup()
 
     if (WifiEnabled)
         SetupWIFI();
+}
+
+void YETI_YUKON::Enable()
+{
+    _Disabled = false;
 }
 
 void YETI_YUKON::Disable()
@@ -83,7 +88,7 @@ void YETI_YUKON::SetupWIFI()
         OLED.clear();
         OLED.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
         OLED.setFont(ArialMT_Plain_16);
-        OLED.drawString(OLED.getWidth()/2, OLED.getHeight()/2, "Ready for OTA:\n" + WiFi.localIP().toString());
+        OLED.drawString(OLED.getWidth() / 2, OLED.getHeight() / 2, "Ready for OTA:\n" + WiFi.localIP().toString());
         OLED.display();
 
         OLED.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -104,18 +109,32 @@ void YETI_YUKON::SetupWIFI()
 
 void YETI_YUKON::GeneralTask()
 {
-    
 
     ArduinoOTA.handle();
 
-   
+    _ChAVolts = ADC.readADC(7);
+    _ChAVolts = ADC.readADC(6);
+    _ChAVolts = ADC.readADC(5);
 
     //delay(1);
 }
 
+float YETI_YUKON::ChAVolts()
+{
+    return _ChAVolts;
+}
+float YETI_YUKON::ChBVolts()
+{
+    return _ChBVolts;
+}
+float YETI_YUKON::ChCVolts()
+{
+    return _ChCVolts;
+}
+
 void YETI_YUKON::PatTheDog()
 {
-     _lastWatchdogPat = millis();
+    _lastWatchdogPat = millis();
 }
 void YETI_YUKON::EnableWatchdog()
 {
@@ -159,7 +178,7 @@ void YETI_YUKON::SetupOTA()
             OLED.clear();
             OLED.setFont(ArialMT_Plain_10);
             OLED.setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
-            OLED.drawString(OLED.getWidth()/2, OLED.getHeight()/2 - 10, "OTA Update");
+            OLED.drawString(OLED.getWidth() / 2, OLED.getHeight() / 2 - 10, "OTA Update");
             OLED.display();
 
             // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
@@ -175,7 +194,7 @@ void YETI_YUKON::SetupOTA()
         .onProgress([this](unsigned int progress, unsigned int total) {
             OLED.clear();
 
-            OLED.drawProgressBar(4, 44, 120, 12, progress / (total / 100) );
+            OLED.drawProgressBar(4, 44, 120, 12, progress / (total / 100));
 
             OLED.setTextAlignment(TEXT_ALIGN_RIGHT);
             OLED.setFont(ArialMT_Plain_24);

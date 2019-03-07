@@ -41,12 +41,17 @@ public:
   void WatchdogLoop();
   void SetupWIFI();
   void ToggleWIFI();
+  void Enable();
   void Disable();
   bool IsDisabled();
 
   void EnableWatchdog();
   void DisableWatchdog();
   void PatTheDog();
+
+  float ChAVolts();
+  float ChBVolts();
+  float ChCVolts();
 
   bool WifiEnabled = false;
 
@@ -59,6 +64,10 @@ private:
   void SetupOTA();
   const char *robotName = "";
   const char *password = "";
+
+  volatile float _ChAVolts = 0;
+  volatile float _ChBVolts = 0;
+  volatile float _ChCVolts = 0;
 
   volatile long _lastWatchdogPat = 0;
   volatile long _watchdogBite = 1000;
