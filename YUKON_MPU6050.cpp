@@ -98,10 +98,16 @@ void YUKON_MPU6050::Loop()
         // (this lets us immediately read more without waiting for an interrupt)
         fifoCount -= packetSize;
 
+        
+        
+
         // display Euler angles in degrees
         mpu.dmpGetQuaternion(&q, fifoBuffer);
         mpu.dmpGetGravity(&gravity, &q);
         mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+
+        //mpu.dmpGetQuaternion(&q, fifoBuffer);
+        mpu.dmpGetEuler(euler, &q);
         //Serial.print("ypr\t");
         // Serial.print(ypr[0] * 180 / M_PI);
         // Serial.print("\t");

@@ -24,6 +24,12 @@ class YUKON_COMMAND
 	
 	float _SlowDown = 0;
 
+	int16_t BurnoutControl(int16_t DesiredSpeed, int16_t PrevSpeed);
+    bool BurnoutControlEnabled = false;
+
+	int16_t BurnoutIncrement = 10;
+	int16_t SlowdownIncrement = 45;
+
   private:
 	bool _CmdIsRunning = false;
 	bool _CmdTimedOut = false;
@@ -33,7 +39,6 @@ class YUKON_COMMAND
 	int16_t _CmdStartPoint = 0;
 	int16_t _CmdSetPoint = 0;
 	int16_t _CurrentPoint = 0;
-
 
 	String _CmdName = "";
 };

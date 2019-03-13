@@ -37,6 +37,10 @@ public:
 
   static const int GyroInt = 39;
   volatile bool MpuInterrupt = false;
+  
+  Quaternion q;        // [w, x, y, z]         quaternion container
+  float euler[3];      // [psi, theta, phi]    Euler angle container
+  float ypr[3];        // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 private:
   void UpdateHeading(float newHeading);
@@ -54,13 +58,10 @@ private:
   uint8_t fifoBuffer[64]; // FIFO storage buffer
 
   // orientation/motion vars
-  Quaternion q;        // [w, x, y, z]         quaternion container
   VectorInt16 aa;      // [x, y, z]            accel sensor measurements
   VectorInt16 aaReal;  // [x, y, z]            gravity-free accel sensor measurements
   VectorInt16 aaWorld; // [x, y, z]            world-frame accel sensor measurements
   VectorFloat gravity; // [x, y, z]            gravity vector
-  float euler[3];      // [psi, theta, phi]    Euler angle container
-  float ypr[3];        // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
   //CALIBRATION ITEMS
 
