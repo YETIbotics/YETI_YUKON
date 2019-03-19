@@ -11,7 +11,7 @@ void YETI_YUKON::Setup()
     GYRO.Setup();
 
     PWM.begin();
-    PWM.setPWMFreq(250);
+    PWM.setPWMFreq(750);
 
     GPIO.begin(); // use default address 0
 
