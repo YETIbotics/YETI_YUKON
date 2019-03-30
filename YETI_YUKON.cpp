@@ -113,8 +113,8 @@ void YETI_YUKON::GeneralTask()
     ArduinoOTA.handle();
 
     _ChAVolts = ADC.readADC(7);
-    _ChAVolts = ADC.readADC(6);
-    _ChAVolts = ADC.readADC(5);
+    _ChBVolts = ADC.readADC(6);
+    _ChCVolts = ADC.readADC(5);
 
     //delay(1);
 }
